@@ -1,11 +1,77 @@
-import contactsService from "../services/contactsServices.js";
+import * as contactsServices from "../services/contactsServices.js";
+import HttpError from "../helpers/HttpError.js";
 
-export const getAllContacts = (req, res) => {};
+export const getAllContacts = async (req, res, next) => {
+	try {
+		const result = await contactsServices.listContacts();
+		res.json(result);
+	} catch (error) {
+		next(error);
+	}
+};
 
-export const getOneContact = (req, res) => {};
+export const getOneContact = async (req, res, next) => {
+	try {
+		const { id } = req.params;
+		const result = await contactsServices.getContactById(id);
+		if (!result) {
+			throw HttpError(404);
+		}
+		res.json(result);
+	} catch (err) {
+		next(err);
+	}
+};
 
-export const deleteContact = (req, res) => {};
+export const deleteContact = async (req, res, next) => {
+	const { id } = req.params;
+	const result = await contactsServices.removeContact(id);
+	if (!result) {
+		throw HttpError(404, "Not found");
+	}
+	res.json(result);
 
-export const createContact = (req, res) => {};
+	try {
+		const { id } = req.params;
+		const result = await contactsServices.removeContact(id);
+		if (!result) {
+			throw HttpError(404);
+		}
+		res.status(201).json(result);
+	} catch (err) {
+		next(err);
+	}
+};
 
-export const updateContact = (req, res) => {};
+export const createContact = async (req, res, next) => {
+	try {
+		const { name, email, phone } = req.body;
+		const result = await contactsServices.addContact(name, email, phone);
+		if (!result) {
+			throw HttpError(404);
+		}
+		res.status(201).json(result);
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const updateContact = async (req, res, next) => {
+	const { id } = req.params;
+	const result = await contactsServices.updateContact(id, req.body);
+	if (!result) {
+		throw HttpError(404, "Not found");
+	}
+	res.json(result);
+
+	try {
+		const { id } = req.params;
+		const result = await contactsServices.updateContact(id, req.body);
+		if (!result) {
+			throw HttpError(404);
+		}
+		res.status(201).json(result);
+	} catch (err) {
+		next(err);
+	}
+};
