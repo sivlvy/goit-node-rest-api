@@ -30,7 +30,8 @@ export async function removeContact(contactId) {
 		return null;
 	}
 
-	const deletedContact = data.splice(index, 1);
+	const deletedContact = data.slice(index, index + 1)[0]; // Отримати перший (і єдиний) елемент
+	data.splice(index, 1);
 
 	await fs.writeFile(contactsPath, JSON.stringify(data));
 	return deletedContact;

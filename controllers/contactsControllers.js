@@ -53,6 +53,8 @@ export const updateContact = async (req, res, next) => {
 	try {
 		const { id } = req.params;
 		const result = await contactsServices.updateContact(id, req.body);
+		const emptyBody = Object.keys(req.body.length === 0);
+		if (emptyBody) throw HttpError(400, "Body must have at least one field");
 		if (!result) {
 			throw HttpError(404, "Contact not found");
 		}
