@@ -26,8 +26,7 @@ const deleteContact = async (req, res, next) => {
 };
 
 const createContact = async (req, res, next) => {
-	const { name, email, phone } = req.body;
-	const result = await Contact.create({ name, email, phone, favorite });
+	const result = await Contact.create(req.body);
 	if (!result) {
 		throw HttpError(404);
 	}
