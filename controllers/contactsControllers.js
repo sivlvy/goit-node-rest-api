@@ -26,11 +26,21 @@ const deleteContact = async (req, res, next) => {
 };
 
 const createContact = async (req, res, next) => {
-	const result = await Contact.create(req.body);
-	if (!result) {
-		throw HttpError(404);
+	const { email } = req.body;
+
+	try {
+		const existingContact = await Contact.findOne({ email });
+
+		if (existingContact) {
+			return res.status(409).json({ message: "Контакт з цією поштою вже існує" });
+		}
+
+		const result = await Contact.create(req.body);
+
+		res.status(201).json(result);
+	} catch (error) {
+		next(error);
 	}
-	res.status(201).json(result);
 };
 
 const updateContact = async (req, res, next) => {
