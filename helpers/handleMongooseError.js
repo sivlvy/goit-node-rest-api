@@ -1,4 +1,6 @@
-export const handleMongooseError = (err, data, next) => {
+export const {
+	handleMongooseError,
+} = (err, data, next) => {
 	err.status(404);
 	next();
 };
