@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/contacts", contactsRouter);
-app.use("api/users", authRouter);
+app.use("/api/users", authRouter);
 
 app.use((_, res) => {
 	res.status(404).json({ message: "Route not found" });
@@ -27,7 +27,7 @@ const { DB_HOST, PORT = 3000 } = process.env;
 console.log(DB_HOST);
 mongoose
 	.connect(DB_HOST)
-	.then(() => app.listen(PORT), console.log("Database connection successful"))
+	.then(() => app.listen(3000), console.log("Database connection successful"))
 	.catch((err) => {
 		console.log(err.message);
 		process.exit(1);
