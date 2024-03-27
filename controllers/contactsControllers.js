@@ -3,7 +3,14 @@ import { Contact } from "../models/contacts.js";
 import { ctrlWrapper } from "../helpers/ctrlWrapper.js";
 
 const getAllContacts = async (req, res, next) => {
-	const result = await Contact.find();
+	const { _id: owner } = req.user;
+
+	const { page = 1, limit = 10 } = req.query;
+	const skip = (page - 1) * limit;
+	const result = await Contact.find({ owner }, "-createdAt -updatedAt", { skip, limit }).populate(
+		"owner",
+		"name email"
+	);
 	res.json(result);
 };
 
@@ -26,7 +33,9 @@ const deleteContact = async (req, res, next) => {
 };
 
 const createContact = async (req, res, next) => {
-	const result = await Contact.create(req.body);
+	const { _id: owner } = req.user;
+
+	const result = await Contact.create({ ...req.body, owner });
 	if (!result) {
 		throw HttpError(404);
 	}
