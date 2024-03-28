@@ -1,13 +1,13 @@
 import express from "express";
-import { isValidId } from "../../helpers/isValid.js";
+import { isValidId } from "../../middlewares/isValid.js";
 import { ctrl } from "../../controllers/contactsControllers.js";
-import validateBody from "../../helpers/validateBody.js";
+import validateBody from "../../middlewares/validateBody.js";
 import {
 	updateFavoriteSchema,
 	createContactSchema,
 	updateContactSchema,
 } from "../../models/contacts.js";
-import { authenticate } from "../../helpers/authenticate.js";
+import { authenticate } from "../../middlewares/authenticate.js";
 
 const contactsRouter = express.Router();
 
