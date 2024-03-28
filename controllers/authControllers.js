@@ -1,13 +1,20 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-
+import path from "path";
+import gravatar from "gravatar";
+import { fileURLToPath } from "url";
 import HttpError from "../helpers/HttpError.js";
-
+import fs from "fs/promises";
 import { ctrlWrapper } from "../helpers/ctrlWrapper.js";
 
 import { User } from "../models/users.js";
 
 const { SECRET_KEY } = process.env;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const avatarsDir = path.join(__dirname, "../", "public", "avatars");
 
 const register = async (req, res) => {
 	const { email, password } = req.body;
@@ -18,7 +25,9 @@ const register = async (req, res) => {
 
 	const hashPassword = await bcrypt.hash(password, 10);
 
-	const newUser = await User.create({ email, password: hashPassword });
+	const avatarURL = gravatar.url(email);
+
+	const newUser = await User.create({ email, password: hashPassword, avatarURL });
 
 	res.status(201).json({ user: { email: newUser.email, subscription: newUser.subscription } });
 };
@@ -67,10 +76,25 @@ const updateSubscription = async (req, res) => {
 	res.json({ message: "User subscription successful updated" });
 };
 
+const updateAvatar = async (req, res) => {
+	const { _id } = req.user;
+	const { path: tempUpload, originalname } = req.file;
+	const filename = `${_id}_${originalname}`;
+	const resultUpload = path.join(avatarsDir, filename);
+	await fs.rename(tempUpload, resultUpload);
+	const avatarURL = path.join("avatars", filename);
+	await User.findByIdAndUpdate(_id, { avatarURL });
+
+	res.json({
+		avatarURL,
+	});
+};
+
 export const ctrl = {
 	register: ctrlWrapper(register),
 	login: ctrlWrapper(login),
 	getCurrent: ctrlWrapper(getCurrent),
 	logout: ctrlWrapper(logout),
 	updateSubscription: ctrlWrapper(updateSubscription),
+	updateAvatar: ctrlWrapper(updateAvatar),
 };
