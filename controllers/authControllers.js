@@ -29,7 +29,13 @@ const register = async (req, res) => {
 
 	const newUser = await User.create({ email, password: hashPassword, avatarURL });
 
-	res.status(201).json({ user: { email: newUser.email, subscription: newUser.subscription } });
+	res.status(201).json({
+		user: {
+			email: newUser.email,
+			subscription: newUser.subscription,
+			avatarURL: newUser.avatarURL,
+		},
+	});
 };
 
 const login = async (req, res) => {
@@ -78,7 +84,11 @@ const updateSubscription = async (req, res) => {
 
 const updateAvatar = async (req, res) => {
 	const { _id } = req.user;
+	if (!req.file) {
+		throw HttpError(400, "Not found");
+	}
 	const { path: tempUpload, originalname } = req.file;
+
 	const filename = `${_id}_${originalname}`;
 	const resultUpload = path.join(avatarsDir, filename);
 	await fs.rename(tempUpload, resultUpload);
