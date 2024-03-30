@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import HttpError from "../helpers/HttpError.js";
 import fs from "fs/promises";
 import { ctrlWrapper } from "../helpers/ctrlWrapper.js";
+import Jimp from "jimp";
 
 import { User } from "../models/users.js";
 
@@ -88,6 +89,15 @@ const updateAvatar = async (req, res) => {
 		throw HttpError(400, "Not found");
 	}
 	const { path: tempUpload, originalname } = req.file;
+
+	try {
+		const image = await Jimp.read(tempUpload);
+		await image.resize(250, 250);
+		await image.writeAsync(tempUpload);
+	} catch (error) {
+		console.error("Помилка обробки зображення:", error);
+		throw HttpError(500, "Internal Server Error");
+	}
 
 	const filename = `${_id}_${originalname}`;
 	const resultUpload = path.join(avatarsDir, filename);
